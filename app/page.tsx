@@ -5,6 +5,7 @@ import IntroScreen from "./components/IntroScreen";
 import ResultsScreen from "./components/ResultsScreen";
 import { buildSystemPrompt, UserProfile, Message } from "../lib/prompt";
 import { speak, getAIText, parseScoreFromReply } from "../lib/speech";
+import { generateMayaVideo } from "@/lib/video";
 
 declare const puter: any;
 
@@ -22,6 +23,8 @@ export default function Home() {
   const [scores, setScores] = useState<number[]>([]);
   const [questionCount, setQuestionCount] = useState(0);
   const [interimText, setInterimText] = useState("");
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+
 
   // ─── REFS (always-current values for callbacks) ───────────────────────────
   const loadingRef = useRef(false);
@@ -98,6 +101,12 @@ export default function Home() {
     }, 5000);
   };
 
+
+  const speakAndGenerate = async (text: string, onEnd?: () => void) => {
+    speak(text, onEnd); // audio plays immediately
+    const url = await generateMayaVideo(text); // video generates async
+    if (url) setVideoUrl(url);
+  };
   // ─── START LISTENING ──────────────────────────────────────────────────────
   const startListening = () => {
     if (!micReady.current) return;
@@ -221,7 +230,7 @@ export default function Home() {
     setQuestionCountSync(1);
     setLoadingSync(false);
 
-    speak(clean, safeRestartListening);
+    speakAndGenerate(clean, safeRestartListening);
   };
 
   // ─── SEND MESSAGE ─────────────────────────────────────────────────────────
@@ -269,12 +278,12 @@ ${isDoneByCount ? "This is the last question. Wrap up warmly and append [DONE]."
     setLoadingSync(false);
 
     if (isDone) {
-      speak(finalText);
+      speakAndGenerate(finalText);
       setTimeout(() => setStageSync("done"), 1500);
       return;
     }
 
-    speak(finalText, safeRestartListening);
+    speakAndGenerate(finalText, safeRestartListening);
   };
 
   // ─── RESET ────────────────────────────────────────────────────────────────
@@ -302,11 +311,23 @@ ${isDoneByCount ? "This is the last question. Wrap up warmly and append [DONE]."
   return (
     <main className="min-h-screen bg-[#0d0d0f] text-white flex">
 
-      {/* Sidebar */}
+
       <aside className="hidden md:flex w-52 shrink-0 flex-col bg-[#111116] border-r border-[#1e1e26] p-6">
-        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-500 to-purple-400 flex items-center justify-center text-white text-xl font-serif mx-auto mb-3">
-          M
-        </div>
+
+
+        {videoUrl ? (
+          <video
+            key={videoUrl}
+            src={videoUrl}
+            autoPlay
+            className="w-full rounded-xl mb-3"
+            onEnded={() => setVideoUrl(null)}
+          />
+        ) : (
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-500 to-purple-400 flex items-center justify-center text-white text-xl font-serif mx-auto mb-3">
+            M
+          </div>
+        )}
         <p className="text-center text-sm font-medium text-[#e8e8ea]">Maya</p>
         <p className="text-center text-xs text-[#555] mb-6">Senior Interviewer</p>
 

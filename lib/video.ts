@@ -1,8 +1,8 @@
-async function pollVideo(videoId: string) {
-  let attempts = 0;
+async function pollVideo(videoId: string): Promise<string | null> {
+  const MAX_ATTEMPTS = 30;
 
-  while (attempts < 3) {
-    await new Promise((r) => setTimeout(r, 3000));
+  for (let i = 0; i < MAX_ATTEMPTS; i++) {
+    await new Promise((r) => setTimeout(r, 5000));
 
     try {
       const res = await fetch(
@@ -14,42 +14,45 @@ async function pollVideo(videoId: string) {
         }
       );
 
-      if (!res.ok) {
-        console.log("Polling failed:", res.status);
-        return null;
-      }
-
       const data = await res.json();
-      console.log("STATUS:", data);
+      console.log(`[HeyGen] Poll attempt ${i + 1}:`, data?.data?.status, data);
 
       const status = data?.data?.status;
-
       if (status === "completed") {
-        return data?.data?.video_url;
+        const url = data?.data?.video_url || data?.data?.url;
+        console.log("[HeyGen] Video ready:", url);
+        return url ?? null;
       }
-
       if (status === "failed") {
+        console.error("[HeyGen] Video failed:", data);
         return null;
       }
-
     } catch (err) {
-      console.log("Polling error:", err);
+      console.error("[HeyGen] Poll error:", err);
       return null;
     }
-
-    attempts++;
   }
 
+  console.warn("[HeyGen] Timed out after", MAX_ATTEMPTS, "attempts");
   return null;
 }
 
 export async function generateMayaVideo(text: string): Promise<string | null> {
+  const apiKey = process.env.NEXT_PUBLIC_HEYGEN_API_KEY;
+
+  if (!apiKey) {
+    console.error("[HeyGen] API key is missing");
+    return null;
+  }
+
+  console.log("[HeyGen] Generating video for:", text.slice(0, 60));
+
   try {
     const res = await fetch("https://api.heygen.com/v2/video/generate", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Api-Key": process.env.NEXT_PUBLIC_HEYGEN_API_KEY!,
+        "X-Api-Key": apiKey,
       },
       body: JSON.stringify({
         video_inputs: [
@@ -73,14 +76,18 @@ export async function generateMayaVideo(text: string): Promise<string | null> {
     });
 
     const data = await res.json();
+    console.log("[HeyGen] Generate response:", data);
+
     const videoId = data?.data?.video_id;
+    if (!videoId) {
+      console.error("[HeyGen] No video_id returned:", data);
+      return null;
+    }
 
-    if (!videoId) return null;
-
-    const videoUrl = await pollVideo(videoId);
-
-    return videoUrl ?? null;
-  } catch {
+    console.log("[HeyGen] Polling video_id:", videoId);
+    return await pollVideo(videoId);
+  } catch (err) {
+    console.error("[HeyGen] Generate error:", err);
     return null;
   }
 }
