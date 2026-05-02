@@ -1,16 +1,12 @@
-import type { Metadata } from "next";
-import Script from "next/script";
-import "./globals.css";
+import './globals.css'
+import React from 'react';
 
-export const metadata: Metadata = { title: "AI Interviewer" };
+export default async function Page({ children }: { children: React.ReactNode }) {
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <head>
-        <Script src="https://js.puter.com/v2/" strategy="beforeInteractive" />
-      </head>
-      <body>{children}</body>
-    </html>
-  );
+
+  return <html>
+    <body>
+      {children}
+    </body>
+  </html>;
 }
