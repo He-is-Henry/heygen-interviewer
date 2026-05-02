@@ -14,7 +14,7 @@ interface InterviewerPageProps {
 
 export default function InterviewerPage({ isMobile: initialIsMobile }: InterviewerPageProps) {
   const [mobileOverridden, setMobileOverridden] = useState(false);
-  const [isLive, setIsLive] = useState(false);
+  const [isLive, setIsLive] = useState(true);
   const [useDark, setUseDark] = useState(true);
   const [gateCleared, setGateCleared] = useState(false);
 
@@ -72,8 +72,8 @@ export default function InterviewerPage({ isMobile: initialIsMobile }: Interview
         <div className="flex items-center gap-2">
           {/* Live / Test badge */}
           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium ${effectiveIsLive
-              ? 'bg-green-500/10 border border-green-500/25 text-green-400'
-              : 'bg-white/5 border border-white/10 text-slate-500'
+            ? 'bg-green-500/10 border border-green-500/25 text-green-400'
+            : 'bg-white/5 border border-white/10 text-slate-500'
             }`}>
             <span className={`w-1.5 h-1.5 rounded-full bg-current ${effectiveIsLive ? 'animate-pulse' : ''}`} />
             {effectiveIsLive ? 'Live' : 'Test'}
