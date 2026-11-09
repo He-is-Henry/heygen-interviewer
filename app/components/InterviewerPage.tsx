@@ -3,8 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRecording } from '../hooks/useRecording';
 import RecordingGate from './RecordingGate';
 import MobileGate from './MobileGate';
-import VideoFrame from './VideoFrame';
-import CameraPreview from './CameraPreview';
+import Stage from './Stage';
 import Controls from './Controls';
 import SessionSidebar from './SessionSidebar';
 
@@ -102,11 +101,10 @@ export default function InterviewerPage({ isMobile: initialIsMobile }: Interview
         {/* Left column: Daniel + user cam + controls */}
         <div className="flex flex-col gap-3">
 
-          {/* Daniel (full width) */}
-          <VideoFrame isLive={effectiveIsLive} useDark={useDark} />
-
-          {/* User camera preview */}
-          <CameraPreview
+          {/* Daniel + your camera (picture-in-picture) + fullscreen */}
+          <Stage
+            isLive={effectiveIsLive}
+            useDark={useDark}
             stream={stream}
             isRecording={status === 'active'}
           />
