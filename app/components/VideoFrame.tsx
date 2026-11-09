@@ -1,7 +1,8 @@
 'use client';
 
-const DANIEL_LIGHT = 'https://embed.liveavatar.com/v1/f3d8ca4e-1ca9-4cd7-b7fa-bcb032bf558e?orientation=horizontal';
-const DANIEL_DARK = 'https://embed.liveavatar.com/v1/06e3d852-2a41-43a2-8a41-0c625b9d8450?orientation=horizontal';
+const DANIEL_LIGHT = "https://embed.liveavatar.com/v1/ab9d35d1-fb63-4622-949f-104b802ccdcd?orientation=horizontal";
+
+const DANIEL_DARK = "https://embed.liveavatar.com/v1/0e38d0c9-1d01-4ca2-bb4b-be63c4646c84?orientation=horizontal";
 
 interface VideoFrameProps {
   isLive: boolean;
